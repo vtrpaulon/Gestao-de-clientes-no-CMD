@@ -16,6 +16,7 @@ class Program
     enum Menu { Listagem = 1, Adicionar = 2, Remover = 3, Sair = 4 }
     public static void Main(string[] args)
     {
+        Carregar();
         bool escolheuSair = false;
         while (!escolheuSair)
         {
@@ -30,9 +31,10 @@ class Program
                     Adicionar();
                     break;
                 case Menu.Listagem:
-                Listagem();
+                    Listagem();
                     break;
                 case Menu.Remover:
+                    Remover();
                     break;
                 case Menu.Sair:
                     escolheuSair = true;
@@ -56,6 +58,7 @@ class Program
             
 
             Console.Add(cliente);
+            Salvar();
 
             Console.WriteLine("Cadastro concluido! Aperte ENTER para sair");
             Console.ReadLine();
@@ -84,5 +87,59 @@ class Program
             Console.WriteLine("Aperte ENTER para sair");
             Console.ReadLine();
         }
+
+        static void Remover()
+        {
+            Listagem();
+            Console.WriteLine("Digite o ID do cliente que voce quer remover");
+            int id = int.Parse(Console.ReadLine());
+
+            if(id >= 0 && id < clientes.Count)
+            {
+                clientes.RemoveAt(id);
+                Salvar();
+
+            }
+            else
+            {
+                Console.WriteLine("O id digitado é invalido, tente novamente!");
+                Console.ReadLine();
+            }
+
+        }
+
+        static void Salvar()
+        {
+            FileStream stream = new FileStream("clientes.dat",FileMode.OpenOrCreate);
+            BinaryFormatter enconder = new BinaryFormatter();
+
+            enconder.Serialize(stream, clientes);
+            stream.Close();
+        }
+        static void Carregar()
+        {
+            FileStream stream = new FileStream("clientes.dat",FileMode.OpenOrCreate);
+
+            try
+            {
+                BinaryFormatter enconder = new BinaryFormatter();
+
+                clientes = (List<Cliente>)enconder.Deserialize(stream);
+
+                if(clientes == null)
+                {
+                    clientes = new List<Cliente>();
+                }
+            }
+            catch(Exception e)
+            {
+                clientes = new List<Cliente>();
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
     }
 }
